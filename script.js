@@ -217,8 +217,8 @@ function renderAttendance() {
     });
 }
 
-// Fungsi Absen Masuk & Pulang Sekaligus
-function absenSekaligus() {
+// Fungsi Absen Masuk
+function absenMasuk() {
     const currentTime = getCurrentDeviceTime();
     const dateKey = today.toISOString().split('T')[0];
     
@@ -227,10 +227,40 @@ function absenSekaligus() {
     }
 
     students.forEach(student => {
-        // Set absen hadir
+        // Set absen masuk saja
         attendanceData[dateKey][student.id] = {
             present: true,
             entryTime: currentTime,
+            exitTime: attendanceData[dateKey][student.id]?.exitTime || ''
+        };
+        
+        // Update checkbox di UI
+        const checkbox = document.getElementById(`att-${student.id}`);
+        if (checkbox) {
+            checkbox.checked = true;
+        }
+    });
+
+    localStorage.setItem('attendance', JSON.stringify(attendanceData));
+    renderAttendance();
+    alert(`Absensi Masuk berhasil! Semua siswa tercatat masuk pada jam ${currentTime}`);
+}
+
+// Fungsi Absen Pulang
+function absenPulang() {
+    const currentTime = getCurrentDeviceTime();
+    const dateKey = today.toISOString().split('T')[0];
+    
+    if (!attendanceData[dateKey]) {
+        attendanceData[dateKey] = {};
+    }
+
+    students.forEach(student => {
+        // Update absen pulang saja (pertahankan data masuk yang sudah ada)
+        const existingData = attendanceData[dateKey][student.id] || {};
+        attendanceData[dateKey][student.id] = {
+            present: existingData.present || true,
+            entryTime: existingData.entryTime || '',
             exitTime: currentTime
         };
         
@@ -243,7 +273,7 @@ function absenSekaligus() {
 
     localStorage.setItem('attendance', JSON.stringify(attendanceData));
     renderAttendance();
-    alert(`Absensi berhasil! Semua siswa tercatat pada jam ${currentTime}`);
+    alert(`Absensi Pulang berhasil! Semua siswa tercatat pulang pada jam ${currentTime}`);
 }
 
 // Simpan absensi ke localStorage
