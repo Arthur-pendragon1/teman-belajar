@@ -330,6 +330,36 @@ input:checked + .slider:before { transform: translateX(20px); }
     background: #218838;
 }
 
+.btn-absen-masuk {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.btn-absen-masuk:hover {
+    background: #0056b3;
+}
+
+.btn-absen-pulang {
+    background: #fd7e14;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.btn-absen-pulang:hover {
+    background: #e96d0a;
+}
+
 .btn-export {
     background: #28a745;
     color: white;
