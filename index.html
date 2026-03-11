@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>teman belajar </title>
+    <title>Sistem Manajemen Les & SPP</title>
     <!-- Menggunakan Font Google Poppins agar modern -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <!-- Icon Library -->
@@ -43,7 +43,7 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="logo">
-                <h3>Selsha Arbianti</h3>
+                <h3>rifqi</h3>
             </div>
             <nav>
                 <ul>
@@ -95,7 +95,8 @@
                     <div class="card-header">
                         <h3>Rekap Absensi Hari Ini</h3>
                         <div class="header-buttons">
-                            <button class="btn-absen-sekaligus" onclick="absenSekaligus()"><i class="fas fa-clock"></i> Absen Masuk & Pulang Sekaligus</button>
+                            <button class="btn-absen-masuk" onclick="absenMasuk()"><i class="fas fa-sign-in-alt"></i> Absen Masuk</button>
+                            <button class="btn-absen-pulang" onclick="absenPulang()"><i class="fas fa-sign-out-alt"></i> Absen Pulang</button>
                             <button class="btn-export" onclick="exportAttendanceToExcel()"><i class="fas fa-file-excel"></i> Export Absensi</button>
                             <button class="btn-add" onclick="saveAttendance()"><i class="fas fa-save"></i> Simpan Absensi</button>
                         </div>
