@@ -1,9 +1,9 @@
 // Data Dummy Siswa (Simulasi Database)
 // Menggunakan localStorage agar data tidak hilang saat refresh
 let students = JSON.parse(localStorage.getItem('students')) || [
-    { id: 1, name: "Budi Santoso", class: "Matematika Dasar", status: "Aktif", entryTime: "07:00", exitTime: "09:00" },
-    { id: 2, name: "Siti Aminah", class: "Bahasa Inggris", status: "Aktif", entryTime: "08:00", exitTime: "10:00" },
-    { id: 3, name: "Joko Anwar", class: "Fisika", status: "Cuti", entryTime: "", exitTime: "" }
+    { id: 1, name: "Budi Santoso", class: "Matematika Dasar", status: "Aktif" },
+    { id: 2, name: "Siti Aminah", class: "Bahasa Inggris", status: "Aktif" },
+    { id: 3, name: "Joko Anwar", class: "Fisika", status: "Cuti" }
 ];
 
 // Fungsi untuk menyimpan data ke localStorage
@@ -17,33 +17,74 @@ const loginPage = document.getElementById('loginPage');
 const dashboardPage = document.getElementById('dashboardPage');
 const userNameDisplay = document.getElementById('userNameDisplay');
 
+const btnLogin = document.querySelector('.login-btn');
+const btnText = document.getElementById('btnText');
+const loading = document.getElementById('loading');
+
 loginForm.addEventListener('submit', function(e) {
     e.preventDefault();
     const user = document.getElementById('username').value;
     const pass = document.getElementById('password').value;
 
-    if (user === 'admin' && pass === '1234') {
-        loginPage.style.display = 'none';
-        dashboardPage.style.display = 'flex';
-        userNameDisplay.innerText = "Administrator";
-        renderStudents(); // Load data saat login
-    } else if (user === 'user' && pass === '1234') {
-        loginPage.style.display = 'none';
-        dashboardPage.style.display = 'flex';
-        userNameDisplay.innerText = "User (Siswa)";
-        alert("Selamat datang User! Anda hanya bisa melihat data.");
-        // Sembunyikan fitur admin untuk user
-        document.querySelector('.btn-add').style.display = 'none';
-    } else {
-        alert("Username atau Password salah!");
-    }
+    // Tampilkan loading kecil di tombol
+    btnLogin.disabled = true;
+    btnText.style.display = 'none';
+    loading.style.display = 'block';
+
+    setTimeout(() => {
+        if (user === 'admin' && pass === '1234') {
+            loginPage.style.display = 'none';
+            dashboardPage.style.display = 'flex';
+            userNameDisplay.innerText = "Administrator";
+            renderStudents(); // Load data saat login
+        } else if (user === 'user' && pass === '1234') {
+            loginPage.style.display = 'none';
+            dashboardPage.style.display = 'flex';
+            userNameDisplay.innerText = "User (Siswa)";
+            alert("Selamat datang User! Anda hanya bisa melihat data.");
+            // Sembunyikan fitur admin untuk user
+            document.querySelector('.btn-add').style.display = 'none';
+        } else {
+            alert("Username atau Password salah!");
+        }
+
+        // Reset tombol kembali
+        btnLogin.disabled = false;
+        btnText.style.display = 'block';
+        loading.style.display = 'none';
+    }, 800);
 });
+
+// Toggle visibility password
+const passwordField = document.getElementById('password');
+const passwordIcon = document.querySelector('.password-group i');
+
+if (passwordField && passwordIcon) {
+    passwordIcon.style.cursor = 'pointer';
+    passwordIcon.addEventListener('click', function() {
+        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordField.setAttribute('type', type);
+        passwordIcon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+    });
+}
 
 function logout() {
     dashboardPage.style.display = 'none';
     loginPage.style.display = 'flex';
     document.getElementById('username').value = '';
     document.getElementById('password').value = '';
+
+    // Reset tombol login & loading
+    btnLogin.disabled = false;
+    btnText.style.display = 'block';
+    loading.style.display = 'none';
+
+    // Reset password visibility icon
+    if (passwordIcon) {
+        passwordIcon.className = 'fas fa-eye';
+        passwordField.setAttribute('type', 'password');
+    }
+
     // Tampilkan kembali tombol tambah untuk admin saat login ulang
     document.querySelector('.btn-add').style.display = 'inline-block';
 }
@@ -88,8 +129,6 @@ function renderStudents() {
         row.innerHTML = `
             <td>${student.name}</td>
             <td>${student.class}</td>
-            <td>${student.entryTime || '-'}</td>
-            <td>${student.exitTime || '-'}</td>
             <td><span class="status-${student.status === 'Aktif' ? 'paid' : 'unpaid'}">${student.status}</span></td>
             <td>
                 <button class="btn-delete" onclick="deleteStudent(${student.id})"><i class="fas fa-trash"></i> Hapus</button>
@@ -115,8 +154,6 @@ document.getElementById('addStudentForm').addEventListener('submit', function(e)
     
     const name = document.getElementById('newStudentName').value;
     const className = document.getElementById('newStudentClass').value;
-    const entryTime = document.getElementById('newStudentEntryTime').value;
-    const exitTime = document.getElementById('newStudentExitTime').value;
 
     // Generate new ID
     const newId = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1;
@@ -126,9 +163,7 @@ document.getElementById('addStudentForm').addEventListener('submit', function(e)
         id: newId,
         name: name,
         class: className,
-        status: "Aktif",
-        entryTime: entryTime,
-        exitTime: exitTime
+        status: "Aktif"
     };
 
     students.push(newStudent);
@@ -213,15 +248,14 @@ function renderAttendance() {
         const dateKey = today.toISOString().split('T')[0];
         const studentAttendance = attendanceData[dateKey] && attendanceData[dateKey][student.id];
         const isPresent = studentAttendance ? studentAttendance.present : false;
-        const entryTime = studentAttendance ? studentAttendance.entryTime : '';
-        const exitTime = studentAttendance ? studentAttendance.exitTime : '';
-        
+        const statusText = isPresent ? 'Hadir' : 'Tidak Hadir';
+
         const item = document.createElement('div');
         item.className = 'attendance-item';
         item.innerHTML = `
             <div class="student-info">
                 <span class="student-name">${student.name}</span>
-                <span class="student-time">Masuk: ${entryTime || '-'} | Pulang: ${exitTime || '-'}</span>
+                <span class="student-time">${statusText}</span>
             </div>
             <label class="switch">
                 <input type="checkbox" id="att-${student.id}" ${isPresent ? 'checked' : ''} onchange="toggleAttendance(${student.id})">
@@ -242,35 +276,24 @@ function toggleAttendance(studentId) {
         attendanceData[dateKey] = {};
     }
     
-    const existingData = attendanceData[dateKey][studentId] || {};
-    
     attendanceData[dateKey][studentId] = {
-        present: isChecked,
-        entryTime: existingData.entryTime || '',
-        exitTime: existingData.exitTime || ''
+        present: isChecked
     };
     
     localStorage.setItem('attendance', JSON.stringify(attendanceData));
 }
 
-// Fungsi Absen Masuk
-function absenMasuk() {
-    const currentTime = getCurrentDeviceTime();
+// Fungsi untuk menandai semua siswa hadir
+function setAllPresent() {
     const dateKey = today.toISOString().split('T')[0];
-    
+
     if (!attendanceData[dateKey]) {
         attendanceData[dateKey] = {};
     }
 
     students.forEach(student => {
-        // Set absen masuk saja
-        attendanceData[dateKey][student.id] = {
-            present: true,
-            entryTime: currentTime,
-            exitTime: attendanceData[dateKey][student.id]?.exitTime || ''
-        };
-        
-        // Update checkbox di UI
+        attendanceData[dateKey][student.id] = { present: true };
+
         const checkbox = document.getElementById(`att-${student.id}`);
         if (checkbox) {
             checkbox.checked = true;
@@ -279,37 +302,29 @@ function absenMasuk() {
 
     localStorage.setItem('attendance', JSON.stringify(attendanceData));
     renderAttendance();
-    alert(`Absensi Masuk berhasil! Semua siswa tercatat masuk pada jam ${currentTime}`);
+    alert('Semua siswa ditandai hadir!');
 }
 
-// Fungsi Absen Pulang
-function absenPulang() {
-    const currentTime = getCurrentDeviceTime();
+// Fungsi untuk mereset absensi
+function clearAllAttendance() {
     const dateKey = today.toISOString().split('T')[0];
-    
+
     if (!attendanceData[dateKey]) {
         attendanceData[dateKey] = {};
     }
 
     students.forEach(student => {
-        // Update absen pulang saja (pertahankan data masuk yang sudah ada)
-        const existingData = attendanceData[dateKey][student.id] || {};
-        attendanceData[dateKey][student.id] = {
-            present: existingData.present || true,
-            entryTime: existingData.entryTime || '',
-            exitTime: currentTime
-        };
-        
-        // Update checkbox di UI
+        attendanceData[dateKey][student.id] = { present: false };
+
         const checkbox = document.getElementById(`att-${student.id}`);
         if (checkbox) {
-            checkbox.checked = true;
+            checkbox.checked = false;
         }
     });
 
     localStorage.setItem('attendance', JSON.stringify(attendanceData));
     renderAttendance();
-    alert(`Absensi Pulang berhasil! Semua siswa tercatat pulang pada jam ${currentTime}`);
+    alert('Absensi telah dikosongkan.');
 }
 
 // Simpan absensi ke localStorage
@@ -322,12 +337,8 @@ function saveAttendance() {
 
     students.forEach(student => {
         const checkbox = document.getElementById(`att-${student.id}`);
-        const existingData = attendanceData[dateKey][student.id] || {};
-        
         attendanceData[dateKey][student.id] = {
-            present: checkbox.checked,
-            entryTime: existingData.entryTime || '',
-            exitTime: existingData.exitTime || ''
+            present: checkbox.checked
         };
     });
 
@@ -467,8 +478,6 @@ function exportAttendanceToExcel() {
                     'Tanggal': formatDate(dateKey),
                     'Nama Siswa': student.name,
                     'Kelas': student.class,
-                    'Jam Masuk': studentData.entryTime || '-',
-                    'Jam Pulang': studentData.exitTime || '-',
                     'Status': studentData.present ? 'Hadir' : 'Tidak Hadir'
                 });
             }
@@ -488,8 +497,6 @@ function exportAttendanceToExcel() {
         { wch: 15 }, // Tanggal
         { wch: 25 }, // Nama Siswa
         { wch: 20 }, // Kelas
-        { wch: 12 }, // Jam Masuk
-        { wch: 12 }, // Jam Pulang
         { wch: 12 }  // Status
     ];
     ws['!cols'] = colWidths;
